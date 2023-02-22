@@ -1,0 +1,69 @@
+const express = require('express');
+const router = express.Router();
+const Users =require('../DataContext/Model/Users');
+const WorkSpaceSchema =require('../DataContext/Model/Workspace');
+const Groups=require('..//DataContext/Model/Groups')
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+const VerfifyFetchUser = require('../Middleware/Verify');
+dotenv.config();
+
+
+//login()
+router.post("/login",async(req,res)=>{
+  try {
+    const profile=JSON.parse(req.body.profile);
+    const user=await Users.findOne({UserId:profile.id});
+    if(user){
+      user.picture=profile.picture;
+      const JWT_SECRET = process.env.JWT_SECRET;
+      let data = {
+        userId: user.UserId,
+      }
+      const jwttoken=jwt.sign(data,JWT_SECRET);
+     return res.json({Msg:"Success",token:jwttoken,profile:user}).status(200);
+    }
+    else{
+      const NewUser=new Users({UserId:profile.id,Email:profile.email,Name:profile.name});
+      const saveUser=await NewUser.save();
+      
+      if(saveUser!=null){
+        saveUser.picture=profile.picture;
+        const JWT_SECRET = process.env.JWT_SECRET;
+        let data = {
+          userId: user.UserId,
+        }
+        const jwttoken=jwt.sign(data,JWT_SECRET);
+      return  res.json({Msg:"Success",token:jwttoken,profile:saveUser}).status(200);
+      }else{
+       return res.json({Msg:"Serve error",token:"",profile:null}).status(500);
+      }
+    }
+  } catch (error) {
+     res.json({Msg:"Serve error",token:"",profile:null}).status(500);
+  }
+})
+
+//getProfile() and get all workspace and get all groups
+router.get('/getprofile',VerfifyFetchUser,async (req, res)=>{
+  try {
+    const userId=req.userId;
+    const user=await Users.find({UserId:userId});
+    const workspaces= await WorkSpaceSchema.find({UserId:userId});
+    const groups=await Groups.find({UserId:userId})
+    res.json({Msg:"Success",workspace:workspaces,profile:user,group:groups}).status(200);
+  } catch (error) {
+    res.json({Msg:"Internal server error",workspace:[],profile:{},group:[]}).status(500);
+  }
+})
+
+//check jwt token is authorize or not
+router.get('/authorize',VerfifyFetchUser,async(req,res)=>{
+  try {
+    res.send("sucessfull authorize user").status(200);
+  } catch (error) {
+    res.send("Internal server error").status(200);
+  }
+})
+
+module.exports = router;
