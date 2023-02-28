@@ -4,6 +4,7 @@ const WorkSpaceSchema = require("../DataContext/Model/Workspace");
 const Users = require("../DataContext/Model/Users");
 const Groups = require("../DataContext/Model/Groups");
 const VerfifyFetchUser = require("../Middleware/Verify");
+const Chats=require('../DataContext/Model/Chats')
 
 //create workspace
 router.post("/create", VerfifyFetchUser, async (req, res) => {
@@ -70,7 +71,7 @@ router.get("/getuser/:id", VerfifyFetchUser, async (req, res) => {
     const profileUser = await Users.find({ UserId:userId});
     const admin_group={UserEmail:admin[0].Email,UserId:admin[0].UserId,UserName:admin[0].Name,workSpaceId:workspace._id,workSpaceName:workspace.Name};
     groups.push(admin_group);
-    
+
     res
       .json({
         user: profileUser,
@@ -84,6 +85,20 @@ router.get("/getuser/:id", VerfifyFetchUser, async (req, res) => {
     res.json({ Message: "Something happen in backend" }).status(500);
   }
 });
+
+router.get("/chats/:id",VerfifyFetchUser,async(req,res)=>{
+try {
+  const workspaceId = req.params["id"];
+  const chats=await Chats.find({WorkspaceId:workspaceId});
+  res
+  .json({
+    chat: chats,
+    Msg: "successfull get Chats",
+  })
+  .status(200);} catch (error) {
+  res.json({ Message: "Something happen in backend" }).status(500);
+ }
+})
 
 
 module.exports = router;
