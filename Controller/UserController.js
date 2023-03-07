@@ -30,7 +30,6 @@ router.post("/login", async (req, res) => {
         Name: profile.name,
       });
       const saveUser = await NewUser.save();
-
       if (saveUser != null) {
         saveUser.picture = profile.picture;
         const JWT_SECRET = process.env.JWT_SECRET;
@@ -61,7 +60,7 @@ router.get("/getprofile", VerfifyFetchUser, async (req, res) => {
     const groups = await Groups.find({ UserId: userId });
     res
       .json({
-        Msg: "Success",
+        Msg: "Success get profile",
         workspace: workspaces,
         profile: user,
         group: groups,
@@ -71,7 +70,7 @@ router.get("/getprofile", VerfifyFetchUser, async (req, res) => {
     console.log(error);
     res
       .json({
-        Msg: "Internal server error",
+        Msg: "Internal server error in get profile",
         workspace: [],
         profile: {},
         group: [],
@@ -80,15 +79,8 @@ router.get("/getprofile", VerfifyFetchUser, async (req, res) => {
   }
 });
 
-//check jwt token is authorize or not
-router.get("/authorize", VerfifyFetchUser, async (req, res) => {
-  try {
-    res.send("sucessfull authorize user").status(200);
-  } catch (error) {
-    res.send("Internal server error").status(200);
-  }
-});
 
+//Get RoomName
 router.get("/roomName/:id", VerfifyFetchUser, async (req, res) => {
   try {
     const url = req.params["id"];
@@ -116,5 +108,6 @@ router.get("/roomName/:id", VerfifyFetchUser, async (req, res) => {
     res.json({ Message: "Something happen in backend" }).status(500);
   }
 });
+
 
 module.exports = router;

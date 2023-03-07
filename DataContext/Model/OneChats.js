@@ -1,6 +1,11 @@
 const mongoose=require('mongoose')
 
 const sechma = new mongoose.Schema({
+    Created: {type: Date, default: Date.now},
+    RoomId:{
+        type:String,
+        required:true,
+    },
     Date: {
         type: String,
         required: true,
@@ -13,11 +18,11 @@ const sechma = new mongoose.Schema({
         type:String,
         required:true
     },
-    SenderUserName:{
+    UserName:{
         type:String,
         required:true,
     },
-    SenderUserId:{
+    UserId:{
         type:String,
         required:true
     },
@@ -43,5 +48,5 @@ const sechma = new mongoose.Schema({
     },
 });
 
-const OneChats = mongoose.model('onechats', sechma);
+const OneChats = mongoose.model('userchats', sechma);
 module.exports = OneChats;
