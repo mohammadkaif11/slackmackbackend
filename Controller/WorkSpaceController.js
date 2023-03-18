@@ -6,6 +6,7 @@ const Groups = require("../DataContext/Model/Groups");
 const VerfifyFetchUser = require("../Middleware/Verify");
 const Chats = require("../DataContext/Model/Chats");
 const OneChats = require("../DataContext/Model/OneChats");
+const Channels=require("../DataContext/Model/Channels");  
 
 //create workspace
 router.post("/create", VerfifyFetchUser, async (req, res) => {
@@ -30,7 +31,7 @@ router.post("/create", VerfifyFetchUser, async (req, res) => {
   }
 });
 
-//Adding the user in group
+//Adding the user in workspace
 router.post("/addgroup", VerfifyFetchUser, async (req, res) => {
   try {
     const user = await Users.findOne({ Email: req.body.email });
@@ -156,5 +157,21 @@ router.get("/deleteuser/:id", VerfifyFetchUser, async (req, res) => {
     res.json({ Message: "Something happen in backend" }).status(500);
   }
 });
+
+
+//Create Channel
+router.get('/createchannel', async (req, res) => {  
+  try {
+   if(req.body.workSpaceId=="" || req.body.channelName==""){
+    res.json({ Message: "WorkspaceId or channelName cant empty" }).status(200);
+    return;
+   }
+  const channel=new Channels({WorkSpaceId: req.body.workSpaceId, ChannelName: req.body.channelName, Users:[]});
+  const data=await channel.save();
+  res.json({Message:"Sucess Create Channel"}).status(200);
+  } catch (error) {
+    res.json({ Message: "Something happen in backend" }).status(500);
+  }
+})
 
 module.exports = router;

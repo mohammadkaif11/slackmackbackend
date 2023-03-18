@@ -21,6 +21,7 @@ connectToMongo();
 app.use(bodyParser.json());
 app.use(cors());
 
+//S3 Bucket
 const s3 = new AWS.S3({
   accessKeyId: ID,
   secretAccessKey: SECRET,
@@ -90,7 +91,22 @@ io.on("connection", function (socket) {
     data._id=uniqid();
     socket.broadcast.to(data.Id).emit("GETMSG", data);
     // socket.in(data.Id)
-    SaveChatToDB(data)
+    SaveChatToDB(data);
+    
+    setTimeout(() => {
+      let Recived=false;
+      socket.on("recived",(data)=>{
+       if(data){
+        Recived=true;
+       }
+      })
+      if(Recived){
+        console.log("Recived")
+      }else{
+        console.log("not Recived")
+      }
+    },3000);
+    
   });
   
   //unsribe the room
@@ -160,6 +176,7 @@ app.get("/", (req, res) => {
 });
 
 
+
 //S3 Bucket Dwonload implementation ..... ........ 
 app.get("/download/:filename", async (req, res) => {
   const filename = req.params.filename;
@@ -210,7 +227,6 @@ function SaveChatToDB(obj) {
     })
   }
 }
-
 
 
 
