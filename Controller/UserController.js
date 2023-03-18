@@ -80,7 +80,7 @@ router.get("/getprofile", VerfifyFetchUser, async (req, res) => {
 });
 
 
-//Get RoomName
+//Get RoomName details 
 router.get("/roomName/:id", VerfifyFetchUser, async (req, res) => {
   try {
     const url = req.params["id"];
