@@ -11,7 +11,8 @@ const sechma = new mongoose.Schema({
     },
     WorkspaceId:{
         type:String,
-        required:true
+        required:true,
+        index:true
     },
     UserName:{
         type:String,

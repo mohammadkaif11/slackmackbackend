@@ -112,6 +112,7 @@ io.on("connection", function (socket) {
   //unsribe the room
   socket.on("UnscribeRoom",(data)=>{
     socket.leave(data);
+    console.log('socket leae the room',data)
   })
 
   //disconnect
@@ -149,19 +150,22 @@ io.on("connection", function (socket) {
 
   //Create room
   socket.on('createRoom2',(data)=>{
+    console.log('------------data-------',data)
     var room=UserStore.find(function(element){
-      if(data.workspaceId.id==element.workspaceId.id  && element.from==data.to && element.to==data.from || element.from==data.from && element.to==data.to ){
+      if(data.workspaceId==element.workspaceId  && element.from==data.to && element.to==data.from || element.from==data.from && element.to==data.to ){
         return element;
       }
     })
     if(room!=undefined || room!=null){
       console.log("room Exists");
       console.log(room)
+      console.log("------User Store----------",UserStore)
       socket.emit('SENDROOMID',room.RoomId)
     }else{
      var RoomId=data.from+data.to;
      data.RoomId=RoomId;
      UserStore.push(data);
+     console.log("------User Store----------",UserStore)
      console.log("room doest not Exists");
      console.log(data);
      socket.emit('SENDROOMID',RoomId);

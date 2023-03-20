@@ -5,6 +5,7 @@ const sechma = new mongoose.Schema({
     RoomId:{
         type:String,
         required:true,
+        index:true
     },
     Date: {
         type: String,
@@ -16,7 +17,8 @@ const sechma = new mongoose.Schema({
     },
     WorkspaceId:{
         type:String,
-        required:true
+        required:true,
+        index:true
     },
     UserName:{
         type:String,

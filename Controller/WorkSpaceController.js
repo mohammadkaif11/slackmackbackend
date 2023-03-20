@@ -23,6 +23,8 @@ router.post("/create", VerfifyFetchUser, async (req, res) => {
       });
       const data = await workspacce.save();
       res.send("success create successfully").status(200);
+         return;
+      
     } else {
       res.send("With same  name workspace already there").status(200);
     }
@@ -158,9 +160,8 @@ router.get("/deleteuser/:id", VerfifyFetchUser, async (req, res) => {
   }
 });
 
-
 //Create Channel
-router.get('/createchannel', async (req, res) => {  
+router.post('/createchannel',VerfifyFetchUser, async (req, res) => {  
   try {
    if(req.body.workSpaceId=="" || req.body.channelName==""){
     res.json({ Message: "WorkspaceId or channelName cant empty" }).status(200);
@@ -173,5 +174,97 @@ router.get('/createchannel', async (req, res) => {
     res.json({ Message: "Something happen in backend" }).status(500);
   }
 })
+
+//get Channels
+router.post('/getchannels',async (req, res)=>{
+  try {
+    if(req.body.workSpaceId==""){
+     res.json({ Message: "WorkspaceId or channelName cant empty" }).status(200);
+     return;
+    }
+   const channel=await Channels.find({WorkSpaceId:req.body.workSpaceId});
+   res.json({Message:"Sucess Get Channels",Channels:channel}).status(200); 
+   } catch (error) {
+    console.log(error)
+     res.json({ Message: "Something happen in backend" }).status(500);
+   }
+})
+
+//get workspacedetails
+router.get("/getWorkspacedetails/:id", VerfifyFetchUser, async (req, res) => {
+  try {
+    const id = req.params["id"];
+    const workspace=await WorkSpaceSchema.findById(id);
+    res.json({ Message: "Sucess get workspace details",Workspace:workspace }).status(200);
+  } catch (error) {
+    console.log(error)
+    res.json({ Message: "Something happen in backend" }).status(500);
+  }
+});
+
+//add Channels
+router.post("/addchannel", VerfifyFetchUser, async (req, res) => {
+  try {
+    console.log(req.body)
+    const user = await Users.findOne({ Email: req.body.email });
+    if (user) {
+      console.log(user);
+      const group=await Groups.findOne({ WorkspaceId: req.body.workSpaceId,UserId:user.UserId,UserEmail:req.body.email });
+      if (group) {
+        const channel=await Channels.findById(req.body.channelId);
+        if(channel){
+          var ExistUser=channel.Users.find(function(element){
+            if(element==user.UserId){
+              return element;
+            }
+          })
+          if(ExistUser){
+            return res.json({ Message: "UserAlready Exist with channel" }).status(200);
+          }
+          let Temp=[];
+          Temp=channel.Users;
+          Temp.push(user.UserId);
+          channel.Users=Temp;
+          const updateChannel=await Channels.findByIdAndUpdate(req.body.channelId,channel);
+          console.log('Update Channel',updateChannel);
+          return res.json({ Message: "Successfully add User in Channel" }).status(200);
+        }
+      }else{
+        return res.json({ Message: "User Does not Exits in workspace" }).status(200);
+      }
+    } else {
+      return res
+        .json({ Message: "User is not signup with slackmack" })
+        .status(500);
+    }
+  } catch (error) {
+    console.log(error);
+    return res.json({ Message: "Something happen in backend" }).status(500);
+  }
+});
+
+//Get Channels by workspaceId and UserId
+router.get('/getChannels/:id',VerfifyFetchUser, async (req, res) => {
+ try {
+    const userId = req.userId;
+    const id = req.params["id"];
+    let ChannelArray=[];
+    const channels=await Channels.find({WorkSpaceId:id});
+
+    channels.forEach(element => {
+      let UserExist=element.Users.find((element) =>{return element==userId});
+      if(UserExist){
+        ChannelArray.push(element);
+      }
+    });
+
+    return res.json({ Message: "Success Get Channels",Channel:ChannelArray}).status(500);
+
+  } catch (error) {
+    console.log(error);
+    return res.json({ Message: "Something happen in backend" }).status(500);
+  }
+})
+
 
 module.exports = router;

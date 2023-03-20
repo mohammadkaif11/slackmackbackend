@@ -11,5 +11,5 @@ const sechma = new mongoose.Schema({
     }
 });
 
-const WorkSpaceSchema = mongoose.model('workspaceSchema', sechma);
+const WorkSpaceSchema = mongoose.model('workspace', sechma);
 module.exports = WorkSpaceSchema;
