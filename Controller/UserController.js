@@ -47,6 +47,7 @@ router.post("/login", async (req, res) => {
       }
     }
   } catch (error) {
+    console.log('Error login :', error);
     res.json({ Msg: "Serve error", token: "", profile: null }).status(500);
   }
 });
@@ -58,7 +59,7 @@ router.get("/getprofile", VerfifyFetchUser, async (req, res) => {
     const user = await Users.find({ UserId: userId });
     const workspaces = await WorkSpaceSchema.find({ UserId: userId });
     const groups = await Groups.find({ UserId: userId });
-    res
+   return res
       .json({
         Msg: "Success get profile",
         workspace: workspaces,
@@ -67,7 +68,7 @@ router.get("/getprofile", VerfifyFetchUser, async (req, res) => {
       })
       .status(200);
   } catch (error) {
-    console.log(error);
+    console.log('Error get Profile :', error);
     res
       .json({
         Msg: "Internal server error in get profile",
@@ -105,6 +106,7 @@ router.get("/roomName/:id", VerfifyFetchUser, async (req, res) => {
         .status(200);
     }
   } catch (error) {
+    console.log('Error get get room details by roomId :', error);
     res.json({ Message: "Something happen in backend" }).status(500);
   }
 });

@@ -38,7 +38,6 @@ router.post("/addgroup", VerfifyFetchUser, async (req, res) => {
   try {
     const user = await Users.findOne({ Email: req.body.email });
     if (user) {
-      console.log(user);
       const group = await Groups.findOne({
         UserId: user.UserId,
         workSpaceId: req.body.workSpaceId,
@@ -63,7 +62,7 @@ router.post("/addgroup", VerfifyFetchUser, async (req, res) => {
         .status(500);
     }
   } catch (error) {
-    console.log(error);
+    console.log('Error add In Group :', error);
     return res.json({ Message: "Something happen in backend" }).status(500);
   }
 });
@@ -141,7 +140,6 @@ router.post("/userchats/:id", VerfifyFetchUser, async (req, res) => {
 router.get("/deleteuser/:id", VerfifyFetchUser, async (req, res) => {
   try {
     const userId = req.params["id"];
-    console.log(userId)
     const Group=await Groups.findByIdAndDelete(userId);
     if(Group){
       res
@@ -155,7 +153,7 @@ router.get("/deleteuser/:id", VerfifyFetchUser, async (req, res) => {
       })
     }
   } catch (error) {
-    console.log(Error)
+    console.log('Error delete user by userid:', error);
     res.json({ Message: "Something happen in backend" }).status(500);
   }
 });
@@ -185,7 +183,7 @@ router.post('/getchannels',async (req, res)=>{
    const channel=await Channels.find({WorkSpaceId:req.body.workSpaceId});
    res.json({Message:"Sucess Get Channels",Channels:channel}).status(200); 
    } catch (error) {
-    console.log(error)
+    console.log('Error get channels:', error);
      res.json({ Message: "Something happen in backend" }).status(500);
    }
 })
@@ -197,7 +195,7 @@ router.get("/getWorkspacedetails/:id", VerfifyFetchUser, async (req, res) => {
     const workspace=await WorkSpaceSchema.findById(id);
     res.json({ Message: "Sucess get workspace details",Workspace:workspace }).status(200);
   } catch (error) {
-    console.log(error)
+    console.log('Error get workspacedetails:', error);
     res.json({ Message: "Something happen in backend" }).status(500);
   }
 });
@@ -205,10 +203,8 @@ router.get("/getWorkspacedetails/:id", VerfifyFetchUser, async (req, res) => {
 //add Channels
 router.post("/addchannel", VerfifyFetchUser, async (req, res) => {
   try {
-    console.log(req.body)
     const user = await Users.findOne({ Email: req.body.email });
     if (user) {
-      console.log(user);
       const group=await Groups.findOne({ WorkspaceId: req.body.workSpaceId,UserId:user.UserId,UserEmail:req.body.email });
       if (group) {
         const channel=await Channels.findById(req.body.channelId);
@@ -226,7 +222,6 @@ router.post("/addchannel", VerfifyFetchUser, async (req, res) => {
           Temp.push(user.UserId);
           channel.Users=Temp;
           const updateChannel=await Channels.findByIdAndUpdate(req.body.channelId,channel);
-          console.log('Update Channel',updateChannel);
           return res.json({ Message: "Successfully add User in Channel" }).status(200);
         }
       }else{
@@ -238,7 +233,7 @@ router.post("/addchannel", VerfifyFetchUser, async (req, res) => {
         .status(500);
     }
   } catch (error) {
-    console.log(error);
+    console.log('Error add user in channel :', error);
     return res.json({ Message: "Something happen in backend" }).status(500);
   }
 });
@@ -261,7 +256,7 @@ router.get('/getChannels/:id',VerfifyFetchUser, async (req, res) => {
     return res.json({ Message: "Success Get Channels",Channel:ChannelArray}).status(500);
 
   } catch (error) {
-    console.log(error);
+    console.log('Error get channels by id:', error);
     return res.json({ Message: "Something happen in backend" }).status(500);
   }
 })

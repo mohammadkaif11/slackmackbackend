@@ -61,7 +61,7 @@ io.on("connection", function (socket) {
 
       newObject.push(data);
       GolbalObject = newObject;
-      console.log(`join  room Id is ${data.Id.id}`);
+      console.log(`-------------------workspace joinroom ---Id is ${data.Id.id}------------`);
       socket.join(data.Id.id);
       socket.emit("ONLINEUSER", GolbalObject);
     } else {
@@ -78,7 +78,7 @@ io.on("connection", function (socket) {
       socket.emit("GETUSERNAME", User.Name);
       newObject.push(data);
       GolbalObject = newObject;
-      console.log(`join  room Id is ${data.Id}`);
+      console.log(`-------------------user connect to other user ---join  room Id is ${data.Id}--------------`);
       socket.join(data.Id);
       socket.emit("ONLINEUSER", GolbalObject);
     }
@@ -86,30 +86,15 @@ io.on("connection", function (socket) {
 
   //Send Msg
   socket.on("MSG", (data) => {
-    data._id = uniqid();
     socket.broadcast.to(data.Id).emit("GETMSG", data);
     // socket.in(data.Id)
     SaveChatToDB(data);
-
-    setTimeout(() => {
-      let Recived = false;
-      socket.on("recived", (data) => {
-        if (data) {
-          Recived = true;
-        }
-      });
-      if (Recived) {
-        console.log("Recived");
-      } else {
-        console.log("not Recived");
-      }
-    }, 3000);
   });
 
   //unsribe the room
   socket.on("UnscribeRoom", (data) => {
     socket.leave(data);
-    console.log("socket leae the room", data);
+    console.log("------User Leave room-----------------", data);
   });
 
   //disconnect
@@ -136,7 +121,7 @@ io.on("connection", function (socket) {
     sendObj.Content = params.Key;
     s3.upload(params, function (err, data) {
       if (err) {
-        console.log(err);
+        console.log('Error uploading file: ',err.message);
       }
       console.log(`File uploaded successfully. ${data.Location}`);
       callback({
@@ -147,11 +132,12 @@ io.on("connection", function (socket) {
       //emit Object in room
       socket.in(sendObj.Id).emit("GETMSG", sendObj);
     });
+    
   });
 
   //Create room
   socket.on("createRoom2", (data) => {
-    console.log("------------data-------", data);
+    console.log("-------User Create Room data---------", data);
     var room = UserStore.find(function (element) {
       if (
         (data.workspaceId == element.workspaceId &&
@@ -163,17 +149,15 @@ io.on("connection", function (socket) {
       }
     });
     if (room != undefined || room != null) {
-      console.log("room Exists");
-      console.log(room);
-      console.log("------User Store----------", UserStore);
+      console.log("------room Exists on Server--------",room);
+      console.log("------User Store databse----------", UserStore);
       socket.emit("SENDROOMID", room.RoomId);
     } else {
       var RoomId = data.from + data.to;
       data.RoomId = RoomId;
       UserStore.push(data);
-      console.log("------User Store----------", UserStore);
-      console.log("room doest not Exists");
-      console.log(data);
+      console.log("------room does not Exists on Server--------",data);
+      console.log("------User Store database----------", UserStore);
       socket.emit("SENDROOMID", RoomId);
     }
   });
@@ -195,7 +179,7 @@ app.get("/download/:filename", async (req, res) => {
       .promise();
     res.send(x.Body);
   } catch (error) {
-    console.log(error);
+    console.log('Error downloading: ',error.message);
     res.send(error.message);
   }
 });
@@ -216,10 +200,10 @@ function SaveChatToDB(obj) {
     chats
       .save()
       .then((data) => {
-        console.log("chats is save");
+        console.log('--------------- Chats is saved in database--------------------------------');
       })
       .catch((error) => {
-        console.log(error);
+        console.log('when chat is saved in db: ' + error.message);
       });
   } else {
     const chats = new OneChats({
@@ -238,10 +222,10 @@ function SaveChatToDB(obj) {
     chats
       .save()
       .then((data) => {
-        console.log("Chat save sucessfully with Users");
+        console.log('--------------- Chats is saved in database--------------------------------');
       })
       .catch((error) => {
-        console.log(error);
+        console.log('when chat is saved in db: ' + error.message);
       });
   }
 }
